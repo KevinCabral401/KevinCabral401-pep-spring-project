@@ -43,26 +43,25 @@ public class SocialMediaController {
 
     // 1
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody Account account){
-        accountService.persistAccount(account);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Successfully registered");
+    public ResponseEntity<Account> register(@RequestBody Account account){
+        Account newAccount = accountService.persistAccount(account);
+        return ResponseEntity.status(200)
+                .body(newAccount);
     }
 
     // 2
-    // @PostMapping("/login")
-    // public ResponseEntity<Void> login(@RequestBody Account account){
-    //     accountService.login(account.getUsername(), account.getPassword());
-    //     return ResponseEntity.noContent()
-    //             .header("username", account.getUsername())
-    //             .build();
-    // }
+    @PostMapping("/login")
+    public ResponseEntity<Account> login(@RequestBody Account account){
+        Account loggedIn = accountService.login(account.getUsername(), account.getPassword());
+        return ResponseEntity.status(200).body(loggedIn);
+    }
 
     // 3 Create a message
-    // @PostMapping("/messages")
-    // public ResponseEntity<Message> createMessage(@RequestBody Message message, Account account){
-    //     ToDo
-    // }
+    @PostMapping("/messages")
+    public ResponseEntity<Message> createMessage(@RequestBody Message message){
+        Message msg = messageService.createMessage(message);
+        return ResponseEntity.status(200).body(msg);
+    }
 
 
     // 4 get all messages

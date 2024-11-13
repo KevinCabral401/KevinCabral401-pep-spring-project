@@ -15,6 +15,14 @@ public class AccountService {
         this.accountRepository = accountRepository;
     }
 
+    public Account getAccountByUsername(String user){
+        return accountRepository.findByUsername(user);
+    }
+
+    public Account login(String username, String password){
+        return accountRepository.findByUsernameAndPassword(username, password);
+    }
+
     public Account persistAccount(Account account){
         return accountRepository.save(account);
     }
