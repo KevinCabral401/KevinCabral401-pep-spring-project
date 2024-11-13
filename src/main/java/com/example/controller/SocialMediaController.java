@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -74,7 +75,7 @@ public class SocialMediaController {
 
     // 5 get message by id
     @GetMapping("/messages/{messageId}")
-    public ResponseEntity<Message> getMessageById(@PathParam(value = "messageId") Integer messageId){
+    public ResponseEntity<Message> getMessageById(@PathVariable("messageId") Integer messageId){
         Message msg = messageService.findMessage(messageId);
         return ResponseEntity.status(200)
             .body(msg);
@@ -82,15 +83,25 @@ public class SocialMediaController {
 
     // 6 delete message by id
     @DeleteMapping("/messages/{messageId}")
-    public ResponseEntity<Integer> deleteMessageById(@PathParam(value = "messageId") Integer messageId) {
-        messageService.deleteMessage(messageId);
-        return ResponseEntity.status(200).body(1);   //not technically correct might need custom repository method for returning rows affected
+    public ResponseEntity<Integer> deleteMessageById(@PathVariable("messageId") Integer messageId) {
+        int rowsAffected = messageService.deleteMessageById(messageId);
+        if(rowsAffected == 0){
+            return ResponseEntity.status(200).body(null);
+        }
+        return ResponseEntity.status(200).body(rowsAffected); 
     }
 
     // 7 update message by id
-    // @PatchMapping("/messages/{messageId}")
-    // public ResponseEntity<Integer>
+    @PatchMapping("/messages/{messageId}")
+    public ResponseEntity<Integer> updateMessageById(@PathVariable("messageId") Integer messageId, @RequestBody String messageText) {
+        int rowsAffected = messageService.updateMessageById(messageId, messageText);
+        return ResponseEntity.status(200).body(rowsAffected);
+    }
 
     // 8 retreive all messages from user
-
+    @GetMapping("/accounts/{accountId}/messages")
+    public ResponseEntity<List<Message>> getAllMessagesFromUser(@PathVariable("accountId") Integer accountId){
+        List<Message> list = messageService.getMessageListFromUser(accountId);
+        return ResponseEntity.status(200).body(list);
+    }
 }
