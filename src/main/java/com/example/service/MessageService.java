@@ -1,5 +1,6 @@
 package com.example.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import com.example.entity.Message;
 import com.example.exception.ResourceNotFoundException;
 import com.example.repository.AccountRepository;
 import com.example.repository.MessageRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class MessageService {
@@ -53,27 +55,34 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
-    public int updateMessageById(Integer id, String newMessage) {
-        // Ensure the message is not null or empty first
-        if (newMessage == null || newMessage.trim().isEmpty()) {
+    public int updateMessageById(Integer id, String JsonMessage) {
+        ObjectMapper mapper = new ObjectMapper();
+        String newMessage;
+    
+        try {
+            newMessage = mapper.readTree(JsonMessage).get("messageText").asText();
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Invalid JSON format");
+        }
+        
+        if (newMessage == null || newMessage.isBlank()) {
+            System.out.println("Entered For Loop");
             throw new IllegalArgumentException("Message text cannot be blank.");
         }
         
-        // Check the length constraint
         if (newMessage.length() > 255) {
             throw new IllegalArgumentException("Message length exceeds 255 characters.");
         }
     
-        // Proceed with fetching the message and updating it
         Message exists = messageRepository.findByMessageId(id);
         if (exists == null) {
             throw new ResourceNotFoundException("Could not find message with id: " + id + ".");
         }
         
-        // Update the message
+        System.out.println(newMessage);
         exists.setMessageText(newMessage);
         messageRepository.save(exists);
-        return 1; // Indicating one row was modified
+        return 1; 
     }
     
 }
